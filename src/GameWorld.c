@@ -24,16 +24,94 @@ GameWorld *createGameWorld( void ) {
 
     GameWorld *gw = (GameWorld*) malloc( sizeof( GameWorld ) );
 
+    Vector2 enemyPosStart = { GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 };
+    Vector2 enemyPosEnd = { GetScreenWidth() / 2 + 200, GetScreenHeight() / 2 };
+    float enemyAngle = 0;
+
+    float walkTime = 4;
+    float idleTime = 0.8f;
+    float rotationTime = 1;
+
     gw->enemy = (Enemy) {
-        .pos = { GetScreenWidth() / 2, GetScreenHeight() / 2 },
-        .radius = 10,
+        .pos = enemyPosStart,
+        .radius = 20,
+        .outOfReachDistance = 250,
+        .warningDistance = 150,
+        .alertDistance = 80,
+        .fov = 35,
+        .angle = enemyAngle,
         .followingSpeed = 100,
         .colors = {
             [ENEMY_STATE_PATROLLING] = WHITE,
             [ENEMY_STATE_SUSPICIOUS] = YELLOW,
             [ENEMY_STATE_FOLLOWING] = RED,
         },
-        .state = ENEMY_STATE_PATROLLING
+        .state = ENEMY_STATE_PATROLLING,
+        .actions = {
+            [ENEMY_STATE_PATROLLING] = {
+                .count = 6,
+                .current = 0,
+                .actions = {
+                    {
+                        .totalTime = walkTime,
+                        .currentTime = 0,
+                        .payload = {
+                            .walk = {
+                                .start = enemyPosStart,
+                                .end = enemyPosEnd
+                            }
+                        },
+                        .type = ENEMY_ACTION_TYPE_WALK
+                    }, {
+                        .totalTime = idleTime,
+                        .currentTime = 0,
+                        .payload = { 0 },
+                        .type = ENEMY_ACTION_TYPE_WAIT
+                    }, {
+                        .totalTime = rotationTime,
+                        .currentTime = 0,
+                        .payload = {
+                            .rotate = {
+                                .start = enemyAngle,
+                                .end = enemyAngle + 180
+                            }
+                        },
+                        .type = ENEMY_ACTION_TYPE_ROTATE
+                    }, {
+                        .totalTime = walkTime,
+                        .currentTime = 0,
+                        .payload = {
+                            .walk = {
+                                .start = enemyPosEnd,
+                                .end = enemyPosStart
+                            }
+                        },
+                        .type = ENEMY_ACTION_TYPE_WALK
+                    }, {
+                        .totalTime = idleTime,
+                        .currentTime = 0,
+                        .payload = { 0 },
+                        .type = ENEMY_ACTION_TYPE_WAIT
+                    }, {
+                        .totalTime = rotationTime,
+                        .currentTime = 0,
+                        .payload = {
+                            .rotate = {
+                                .start = enemyAngle + 180,
+                                .end = enemyAngle + 360
+                            }
+                        },
+                        .type = ENEMY_ACTION_TYPE_ROTATE
+                    },
+                }
+            },
+            [ENEMY_STATE_SUSPICIOUS] = {
+                .count = 0
+            },
+            [ENEMY_STATE_FOLLOWING] = {
+                .count = 0
+            },
+        },
     };
 
     return gw;
@@ -52,6 +130,8 @@ void destroyGameWorld( GameWorld *gw ) {
  */
 void updateGameWorld( GameWorld *gw, float delta ) {
 
+    updateEnemy( &gw->enemy, delta );
+
 }
 
 /**
@@ -61,6 +141,8 @@ void drawGameWorld( GameWorld *gw ) {
 
     BeginDrawing();
     ClearBackground( BLACK );
+
+    drawEnemy( &gw->enemy );
 
     EndDrawing();
 

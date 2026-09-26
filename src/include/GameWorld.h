@@ -8,8 +8,10 @@
 #pragma once
 
 #include "Enemy.h"
+#include "Player.h"
 
 typedef struct GameWorld {
+    Player player;
     Enemy enemy;
 } GameWorld;
 

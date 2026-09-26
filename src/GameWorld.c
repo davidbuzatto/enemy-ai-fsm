@@ -32,20 +32,22 @@ GameWorld *createGameWorld( void ) {
     float idleTime = 0.8f;
     float rotationTime = 1;
 
+    gw->player = (Player) {
+        .pos = { 20, 20 },
+        .radius = 15,
+        .walkingSpeed = 200,
+        .color = BLUE
+    };
+
     gw->enemy = (Enemy) {
         .pos = enemyPosStart,
-        .radius = 20,
-        .outOfReachDistance = 250,
+        .radius = 15,
+        .outOfReachDistance = 180,
         .warningDistance = 150,
         .alertDistance = 80,
         .fov = 35,
         .angle = enemyAngle,
         .followingSpeed = 100,
-        .colors = {
-            [ENEMY_STATE_PATROLLING] = WHITE,
-            [ENEMY_STATE_SUSPICIOUS] = YELLOW,
-            [ENEMY_STATE_FOLLOWING] = RED,
-        },
         .state = ENEMY_STATE_PATROLLING,
         .actions = {
             [ENEMY_STATE_PATROLLING] = {
@@ -105,12 +107,8 @@ GameWorld *createGameWorld( void ) {
                     },
                 }
             },
-            [ENEMY_STATE_SUSPICIOUS] = {
-                .count = 0
-            },
-            [ENEMY_STATE_FOLLOWING] = {
-                .count = 0
-            },
+            [ENEMY_STATE_SUSPICIOUS] = { 0 },
+            [ENEMY_STATE_FOLLOWING] = { 0 },
         },
     };
 
@@ -129,9 +127,8 @@ void destroyGameWorld( GameWorld *gw ) {
  * @brief Reads user input and updates the state of the game.
  */
 void updateGameWorld( GameWorld *gw, float delta ) {
-
-    updateEnemy( &gw->enemy, delta );
-
+    updatePlayer( &gw->player, delta );
+    updateEnemy( &gw->enemy, &gw->player, delta );
 }
 
 /**
@@ -143,6 +140,7 @@ void drawGameWorld( GameWorld *gw ) {
     ClearBackground( BLACK );
 
     drawEnemy( &gw->enemy );
+    drawPlayer( &gw->player );
 
     EndDrawing();
 

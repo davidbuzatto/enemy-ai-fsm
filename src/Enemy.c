@@ -6,10 +6,9 @@
 
 #include "Enemy.h"
 #include "Macros.h"
+#include "Player.h"
 
 static void drawEnemyFSM( Enemy *e );
-
-static Vector2 testPos = { 20, 20 };
 
 static const char *enemyStateTable[] = {
     [ENEMY_STATE_PATROLLING] = "Patrolling",
@@ -23,24 +22,18 @@ static const char *enemyActionTypeTable[] = {
     [ENEMY_ACTION_TYPE_WAIT] = "Waiting",
 };
 
-void updateEnemy( Enemy *e, float delta ) {
+static const Color colorTable[] = {
+    [ENEMY_STATE_PATROLLING] = { 0, 200, 40, 255 },
+    [ENEMY_STATE_SUSPICIOUS] = { 215, 215, 0, 255 },
+    [ENEMY_STATE_FOLLOWING] = { 255, 41, 55, 255 },
+};
 
-    if ( IsMouseButtonPressed( MOUSE_BUTTON_LEFT ) ) {
-        testPos = GetMousePosition();
-    }
+void updateEnemy( Enemy *e, Player *p, float delta ) {
 
-    /*if ( IsKeyDown( KEY_RIGHT ) ) {
-        e->angle++;
-    }
+    EnemyActions *actions = &e->actions[e->state];
 
-    if ( IsKeyDown( KEY_LEFT ) ) {
-        e->angle--;
-    }*/
+    if ( e->state == ENEMY_STATE_PATROLLING ) {
 
-    //if ( e->state == ENEMY_STATE_PATROLLING ) {
-
-        //EnemyActions *actions = &e->actions[e->state];
-        EnemyActions *actions = &e->actions[ENEMY_STATE_PATROLLING];
         EnemyAction *action = &actions->actions[actions->current % actions->count];
 
         switch ( action->type ) {
@@ -71,15 +64,15 @@ void updateEnemy( Enemy *e, float delta ) {
             actions->current++;
         }
 
-    //}
+    }
 
     Vector2 forward = {
         cosf( DEG2RAD * e->angle ),
         sinf( DEG2RAD * e->angle ),
     };
 
-    Vector2 offset = Vector2Subtract( testPos, e->pos );
-    float distance = Vector2Distance( testPos, e->pos );
+    Vector2 offset = Vector2Subtract( p->pos, e->pos );
+    float distance = Vector2Distance( p->pos, e->pos );
     Vector2 direction = { offset.x / distance, offset.y / distance };
     float dot = Vector2DotProduct( forward, direction );
     float cosFov = cosf( DEG2RAD * e->fov );
@@ -104,36 +97,28 @@ void updateEnemy( Enemy *e, float delta ) {
 
 void drawEnemy( Enemy *e ) {
 
-    DrawCircleV( testPos, 10, GREEN );
+    DrawCircleV( e->pos, e->outOfReachDistance, Fade( GRAY, 0.05f ) );
 
     DrawCircleSector( 
-        e->pos, 
-        e->outOfReachDistance, 
-        e->angle - e->fov, 
-        e->angle + e->fov, 
-        10, 
-        Fade( GRAY, 0.3f )
+        e->pos, e->warningDistance, 
+        e->angle - e->fov, e->angle + e->fov, 
+        10, WHITE
     );
 
     DrawCircleSector( 
-        e->pos, 
-        e->warningDistance, 
-        e->angle - e->fov, 
-        e->angle + e->fov, 
-        10, 
-        Fade( YELLOW, 0.3f )
+        e->pos, e->warningDistance, 
+        e->angle - e->fov, e->angle + e->fov, 
+        10, Fade( colorTable[ENEMY_STATE_SUSPICIOUS], 0.7f )
     );
 
     DrawCircleSector( 
-        e->pos, 
-        e->alertDistance, 
-        e->angle - e->fov, 
-        e->angle + e->fov, 
-        10, 
-        Fade( RED, 0.3f )
+        e->pos, e->alertDistance, 
+        e->angle - e->fov, e->angle + e->fov, 
+        10, Fade( colorTable[ENEMY_STATE_FOLLOWING], 0.7f )
     );
 
-    DrawCircleV( e->pos, e->radius, e->colors[e->state] );
+    DrawCircleV( e->pos, e->radius, colorTable[e->state] );
+    DrawCircleLinesV( e->pos, e->radius, BLACK );
     drawEnemyFSM( e );
 
 }
@@ -141,11 +126,13 @@ void drawEnemy( Enemy *e ) {
 static void drawEnemyFSM( Enemy *e ) {
 
     EnemyActions *actions = &e->actions[e->state];
-    DrawText( enemyStateTable[e->state], e->pos.x, e->pos.y - e->radius - 40, 20, e->colors[e->state] );
+    DrawText( enemyStateTable[e->state], e->pos.x + 2, e->pos.y - e->radius - 40 + 2, 20, BLACK );
+    DrawText( enemyStateTable[e->state], e->pos.x, e->pos.y - e->radius - 40, 20, colorTable[e->state] );
 
     if ( e->state == ENEMY_STATE_PATROLLING ) {
         EnemyAction *action = &actions->actions[actions->current % actions->count];
-        DrawText( enemyActionTypeTable[action->type], e->pos.x, e->pos.y - e->radius - 20, 20, e->colors[e->state] );
+        DrawText( enemyActionTypeTable[action->type], e->pos.x + 2, e->pos.y - e->radius - 20 + 2, 20, BLACK );
+        DrawText( enemyActionTypeTable[action->type], e->pos.x, e->pos.y - e->radius - 20, 20, colorTable[e->state] );
     }
 
 }

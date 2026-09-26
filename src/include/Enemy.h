@@ -2,6 +2,8 @@
 
 #include "raylib/raylib.h"
 
+#include "Player.h"
+
 typedef enum EnemyState {
     ENEMY_STATE_PATROLLING,
     ENEMY_STATE_SUSPICIOUS,
@@ -50,13 +52,11 @@ typedef struct Enemy {
     float angle;
 
     float followingSpeed;
-
-    Color colors[3];
     EnemyState state;
 
     EnemyActions actions[3];
 
 } Enemy;
 
-void updateEnemy( Enemy *e, float delta );
+void updateEnemy( Enemy *e, Player *p, float delta );
 void drawEnemy( Enemy *e );

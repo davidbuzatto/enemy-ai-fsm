@@ -37,7 +37,7 @@ typedef struct EnemyAction {
 typedef struct EnemyActions {
     int count;
     int current;
-    EnemyAction actions[10];
+    EnemyAction steps[10];
 } EnemyActions;
 
 typedef struct Enemy {
@@ -55,6 +55,15 @@ typedef struct Enemy {
     EnemyState state;
 
     EnemyActions actions[3];
+
+    struct {
+        bool ready;
+        Vector2 playerPos;
+    } suspiciousData;
+
+    struct {
+        bool ready;
+    } chasingData;
 
 } Enemy;
 

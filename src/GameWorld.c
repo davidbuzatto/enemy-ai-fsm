@@ -53,7 +53,7 @@ GameWorld *createGameWorld( void ) {
             [ENEMY_STATE_PATROLLING] = {
                 .count = 6,
                 .current = 0,
-                .actions = {
+                .steps = {
                     {
                         .totalTime = walkTime,
                         .currentTime = 0,
@@ -110,6 +110,13 @@ GameWorld *createGameWorld( void ) {
             [ENEMY_STATE_SUSPICIOUS] = { 0 },
             [ENEMY_STATE_CHASING] = { 0 },
         },
+        .suspiciousData = {
+            .ready = false,
+            .playerPos = { 0 }
+        },
+        .chasingData = {
+            .ready = false
+        }
     };
 
     return gw;

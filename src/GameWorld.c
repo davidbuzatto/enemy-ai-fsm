@@ -108,7 +108,7 @@ GameWorld *createGameWorld( void ) {
                 }
             },
             [ENEMY_STATE_SUSPICIOUS] = { 0 },
-            [ENEMY_STATE_FOLLOWING] = { 0 },
+            [ENEMY_STATE_CHASING] = { 0 },
         },
     };
 

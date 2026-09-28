@@ -13,7 +13,7 @@ static void drawEnemyFSM( Enemy *e );
 static const char *enemyStateTable[] = {
     [ENEMY_STATE_PATROLLING] = "Patrolling",
     [ENEMY_STATE_SUSPICIOUS] = "Suspicious",
-    [ENEMY_STATE_FOLLOWING] = "Following",
+    [ENEMY_STATE_CHASING] = "Following",
 };
 
 static const char *enemyActionTypeTable[] = {
@@ -25,7 +25,7 @@ static const char *enemyActionTypeTable[] = {
 static const Color colorTable[] = {
     [ENEMY_STATE_PATROLLING] = { 0, 200, 40, 255 },
     [ENEMY_STATE_SUSPICIOUS] = { 215, 215, 0, 255 },
-    [ENEMY_STATE_FOLLOWING] = { 255, 41, 55, 255 },
+    [ENEMY_STATE_CHASING] = { 255, 41, 55, 255 },
 };
 
 void updateEnemy( Enemy *e, Player *p, float delta ) {
@@ -79,7 +79,7 @@ void updateEnemy( Enemy *e, Player *p, float delta ) {
 
     if ( distance > 0 && distance <= e->alertDistance ) {
         if ( dot > cosFov ) {
-            e->state = ENEMY_STATE_FOLLOWING;
+            e->state = ENEMY_STATE_CHASING;
         } else {
             e->state = ENEMY_STATE_PATROLLING;
         }
@@ -114,7 +114,7 @@ void drawEnemy( Enemy *e ) {
     DrawCircleSector( 
         e->pos, e->alertDistance, 
         e->angle - e->fov, e->angle + e->fov, 
-        10, Fade( colorTable[ENEMY_STATE_FOLLOWING], 0.7f )
+        10, Fade( colorTable[ENEMY_STATE_CHASING], 0.7f )
     );
 
     DrawCircleV( e->pos, e->radius, colorTable[e->state] );

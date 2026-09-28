@@ -7,7 +7,7 @@
 typedef enum EnemyState {
     ENEMY_STATE_PATROLLING,
     ENEMY_STATE_SUSPICIOUS,
-    ENEMY_STATE_FOLLOWING,
+    ENEMY_STATE_CHASING,
 } EnemyState;
 
 typedef enum EnemyActionType {
